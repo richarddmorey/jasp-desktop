@@ -1,5 +1,5 @@
 
-TTestBayesianIndependentSamples <- function(dataset=NULL, options, perform="run", callback=function(...) 0, ...) {
+TTestBayesianIndependentSamples <- function(dataset=NULL, options, perform="run", callback=function(...) as.integer(0), ...) {
 
 	dependents <- unlist(options$variables)
 	
@@ -76,7 +76,7 @@ TTestBayesianIndependentSamples <- function(dataset=NULL, options, perform="run"
 			
 			} else {
 			
-				null.interval <- c(-Inf, Inf)
+				null.interval <- NULL
 			}
 			
 			result <- try (silent=FALSE, expr= {
@@ -86,10 +86,18 @@ TTestBayesianIndependentSamples <- function(dataset=NULL, options, perform="run"
 				error <- .clean(as.numeric(bf@bayesFactor$error))
 				
 				image <- .beginSaveImage(options$plotWidth, options$plotHeight)
+				
+				myCallback <- function(...){
+					ret <- as.integer(callback())
+					if (ret!=0) print(ret)
+					return(ret)
+				}
+													
+				posterior.samples <- BayesFactor::ttestBF(data=dataset, formula=f, r=r.size, nullInterval=null.interval, posterior=TRUE, iterations=2000000, progress=FALSE, callback = myCallback)
 
-				posterior.samples <- BayesFactor::ttestBF(data=dataset, formula=f, r=r.size, nullInterval=null.interval, posterior=TRUE, iterations=10000, progress=FALSE)
+				delta.samples = posterior.samples[,'mu']/sqrt(posterior.samples[,'sig2'])
 
-				hist(posterior.samples, main=variable, xlab="", ylab="Frequency", col=rainbow(20))
+				hist(delta.samples, main=variable, xlab=expression(paste("std. effect size (",delta,")")), ylab="Frequency", col=rainbow(20))
 				
 				data <- .endSaveImage(image)
 				
@@ -170,7 +178,7 @@ TTestBayesianIndependentSamples <- function(dataset=NULL, options, perform="run"
 			
 				} else {
 			
-					null.interval <- c(-Inf, Inf)
+					null.interval <- NULL
 				}
 				
 				result <- try (silent=FALSE, expr= {
