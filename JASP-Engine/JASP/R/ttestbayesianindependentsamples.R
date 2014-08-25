@@ -89,7 +89,6 @@ TTestBayesianIndependentSamples <- function(dataset=NULL, options, perform="run"
 				
 				myCallback <- function(...){
 					ret <- as.integer(callback())
-					if (ret!=0) print(ret)
 					return(ret)
 				}
 													
