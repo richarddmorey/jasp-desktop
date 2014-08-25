@@ -76,7 +76,7 @@ TTestBayesianIndependentSamples <- function(dataset=NULL, options, perform="run"
 			
 			} else {
 			
-				null.interval <- NULL
+				null.interval <-  c(-Inf, Inf)
 			}
 			
 			result <- try (silent=FALSE, expr= {
@@ -92,7 +92,7 @@ TTestBayesianIndependentSamples <- function(dataset=NULL, options, perform="run"
 					return(ret)
 				}
 													
-				posterior.samples <- BayesFactor::ttestBF(data=dataset, formula=f, r=r.size, nullInterval=null.interval, posterior=TRUE, iterations=2000000, progress=FALSE, callback = myCallback)
+				posterior.samples <- BayesFactor::ttestBF(data=dataset, formula=f, r=r.size, nullInterval=null.interval, posterior=TRUE, iterations=10000, progress=FALSE, callback = myCallback)
 
 				delta.samples = posterior.samples[,'mu']/sqrt(posterior.samples[,'sig2'])
 
@@ -177,9 +177,8 @@ TTestBayesianIndependentSamples <- function(dataset=NULL, options, perform="run"
 			
 				} else {
 			
-					null.interval <- NULL
+					null.interval <- c(-Inf, Inf)
 				}
-				
 				result <- try (silent=FALSE, expr= {
 				
 					bf    <- BayesFactor::ttestBF(data=dataset, formula=f, r=r.size, nullInterval=null.interval)[1]
