@@ -1,5 +1,5 @@
 
-AnovaBayesian <- function(dataset=NULL, options, perform="run", callback=function(...) 0, ...) {
+AnovaBayesian <- function(dataset=NULL, options, perform="run", callback=function(...) as.integer(0), ...) {
 	
 	 
 	if(is.null(base::options()$BFMaxModels)) base::options(BFMaxModels = 50000)
@@ -103,14 +103,20 @@ AnovaBayesian <- function(dataset=NULL, options, perform="run", callback=functio
 					ind.random <- length(options$randomFactors)
 				
 					##ANALYSIS##
-				
+					myCallback <- function(...){
+						ret <- as.integer(callback())
+						return(ret)
+					}
+					
 					if( ind.random > 0) {
 						random <- .v(options$randomFactors)
-						withmain <- BayesFactor::generalTestBF(model.formula, dataset, whichModels = "withmain", neverExclude = random, whichRandom = random,progress=FALSE )
+						withmain <- BayesFactor::generalTestBF(model.formula, dataset, whichModels = "withmain", 
+							neverExclude = random, whichRandom = random,progress=FALSE, callback = myCallback )
 						indr <- which(names(withmain)$numerator == paste(random, collapse=" + ")) 
 						withmain <- withmain[-indr]/withmain[indr]
-						} else {
-						withmain <- BayesFactor::generalTestBF(model.formula, dataset, whichModels = "withmain",progress=FALSE )
+					} else {
+						withmain <- BayesFactor::generalTestBF(model.formula, dataset, whichModels = "withmain", 
+							progress=FALSE, callback = myCallback  )
 					}
 	
 					BFmain <- as.numeric(exp(withmain@bayesFactor$bf))
